@@ -4,4 +4,5 @@ export * from "./eligibility";
 export * from "./records";
 export * from "./documents";
 export * from "./verification";
+export * from "./notice";
 export * from "./case";

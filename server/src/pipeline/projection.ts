@@ -8,6 +8,7 @@ import {
   type FactChanges,
   type HouseholdRecord,
   type IntakeResult,
+  type NoticeDraft,
   type VerificationFlag,
   type VerificationResult,
   type WageRecord,
@@ -53,6 +54,8 @@ export interface CaseView {
   openActionFlags: VerificationFlag[];
   approval: { actor: string; createdAt: string; note: string | null } | null;
   pended: { actor: string; createdAt: string; reason: string } | null;
+  notice: (NoticeDraft & { eventId: number; createdAt: string }) | null;
+  noticeError: { reason: string; message: string; guardErrors: string[]; createdAt: string } | null;
   timeline: CaseEvent[];
 }
 
@@ -79,6 +82,8 @@ export function projectCase(caseNumber: string, events: CaseEvent[]): CaseView {
     openActionFlags: [],
     approval: null,
     pended: null,
+    notice: null,
+    noticeError: null,
     timeline: events,
   };
 
@@ -125,6 +130,8 @@ export function projectCase(caseNumber: string, events: CaseEvent[]): CaseView {
         view.determinationHistory.push(record);
         view.approval = null;
         view.pended = null;
+        view.notice = null;
+        view.noticeError = null;
         if (e.payload.basis === "bps_revision") {
           // A BPS entering verified facts resolves manual review.
           view.status = "AWAITING_REVIEW";
@@ -148,6 +155,14 @@ export function projectCase(caseNumber: string, events: CaseEvent[]): CaseView {
       case "bps.pended":
         view.pended = { actor: e.actor, createdAt: e.createdAt, reason: e.payload.reason };
         view.status = "PENDING_VERIFICATION";
+        break;
+      case "notice.drafted":
+        view.notice = { ...e.payload, eventId: e.id, createdAt: e.createdAt };
+        view.noticeError = null;
+        if (view.approval) view.status = "NOTICE_READY";
+        break;
+      case "notice.failed":
+        view.noticeError = { ...e.payload, createdAt: e.createdAt };
         break;
     }
   }

@@ -9,15 +9,17 @@ Applicant data is sensitive: names, SSNs, income, addresses. AI-written letters 
 ## Decision
 1. **Minimize.** Each AI call gets only the data it needs.
    - The intake step must see the document itself.
-   - The Notice of Action step does **not** need identities. It receives the decision trace with personal data replaced by tokens (`{{APPLICANT_NAME}}`, `{{CASE_NUMBER}}`), which code fills in afterward.
+   - The Notice of Action step does **not** need identities. It receives only de-identified facts: the decision, engine amounts, household size and policy version. The applicant appears as `{{APPLICANT_NAME}}`, which code fills in afterward.
+   - Each drafted notice stores `factsSentToModel`, the exact input the AI saw, so an auditor can confirm no personal data was sent.
 2. **Constrain.** Every AI response must match a Zod schema (structured outputs). If it doesn't match, the step fails. The model returns plain strings; code parses dates and amounts, so parsing is deterministic and unit-tested.
 3. **Verify.** A deterministic **notice guard** checks the generated letter:
    - the decision (approved/denied) matches the determination
    - every dollar amount in the letter equals the engine's figures
-   - the fair hearing / appeal rights paragraph is present
-   - no unreplaced tokens remain
+   - the benefit amount is stated exactly in both English and Spanish
+   - no placeholders other than `{{APPLICANT_NAME}}`
 
-   Any failure → regenerate once → otherwise send to manual review.
+   Any failure → regenerate once, with the guard's findings → otherwise a BPS writes the notice (`notice.failed`).
+   **Legally required language is never AI-written.** The fair-hearing rights, the header and a "SAMPLE NOTICE: not official" banner are fixed text inserted by code. In production that text would come from the agency's policy and legal staff.
 4. **Evidence, checked by code.** For each pay-stub field, intake returns the exact text it read the value from, plus a confidence score. Code then confirms two things:
    - the quoted text exists in the PDF's own text layer, which catches invented quotes
    - the quote actually shows the extracted value, which catches, for example, year-to-date pay read as this period's gross

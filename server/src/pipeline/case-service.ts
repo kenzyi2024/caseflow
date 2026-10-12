@@ -2,6 +2,7 @@ import { z } from "zod";
 import { FactChangesSchema, type FactChanges, type IntakeResult, type NewCaseEvent } from "@caseflow/shared";
 import { toAgentError } from "../agents/claude";
 import { runIntake } from "../agents/intake";
+import { buildNoticeFacts, claudeNoticeWriter, draftNotice, NoticeError, type NoticeWriter } from "../agents/notice";
 import type { HouseholdSource, WageRecordSource } from "../integrations/ports";
 import { determineEligibility } from "../rules/engine";
 import { selectPolicy } from "../rules/policies";
@@ -27,6 +28,8 @@ export interface CaseServiceDeps {
   wages: WageRecordSource;
   intake?: IntakeFn;
   intakeConcurrency?: number;
+  noticeWriter?: NoticeWriter;
+  now?: () => Date;
 }
 
 export class CaseError extends Error {
@@ -44,9 +47,11 @@ const BPS_ACTOR = /^bps:[a-z0-9._-]{2,40}$/;
 export class CaseService {
   private readonly running = new Set<string>();
   private readonly intake: IntakeFn;
+  private readonly noticeWriter: NoticeWriter;
 
   constructor(private readonly deps: CaseServiceDeps) {
     this.intake = deps.intake ?? ((pdf) => runIntake(pdf));
+    this.noticeWriter = deps.noticeWriter ?? claudeNoticeWriter;
   }
 
   /** Open a CaseFlow case for every pending application in the VaCMS extract. */
@@ -75,7 +80,7 @@ export class CaseService {
     this.assertActor(actor);
     const view = this.getCase(caseNumber);
     if (this.running.has(caseNumber)) throw new CaseError("The case is being processed; upload when it finishes.", "BUSY");
-    if (view.status === "APPROVED") throw new CaseError("The case is approved; documents can no longer be added.", "INVALID_STATE");
+    if (isFinal(view)) throw new CaseError("The case is approved; documents can no longer be added.", "INVALID_STATE");
     if (mediaType !== "application/pdf" || Buffer.from(content.subarray(0, 5)).toString("latin1") !== "%PDF-") {
       throw new CaseError("Only PDF documents are accepted.", "VALIDATION");
     }
@@ -93,11 +98,19 @@ export class CaseService {
     return this.getCase(caseNumber).documents.find((d) => d.documentId === stored.documentId)!;
   }
 
-  async runPipeline(caseNumber: string, trigger: string): Promise<CaseView> {
+  /**
+   * Start a pipeline run. Validation happens synchronously (so the API can answer 409 immediately);
+   * the returned promise resolves when the run is recorded as complete.
+   */
+  runPipeline(caseNumber: string, trigger: string): Promise<CaseView> {
     const view = this.getCase(caseNumber);
-    if (view.status === "APPROVED") throw new CaseError("The case is already approved.", "INVALID_STATE");
+    if (isFinal(view)) throw new CaseError("The case is already approved.", "INVALID_STATE");
     if (this.running.has(caseNumber)) throw new CaseError("The pipeline is already running for this case.", "BUSY");
     this.running.add(caseNumber);
+    return this.execute(caseNumber, view, trigger);
+  }
+
+  private async execute(caseNumber: string, view: CaseView, trigger: string): Promise<CaseView> {
     const reasons: string[] = [];
 
     try {
@@ -184,7 +197,7 @@ export class CaseService {
     const view = this.getCase(caseNumber);
     this.assertNotRunning(caseNumber);
     if (!view.verification) throw new CaseError("Run the pipeline before revising facts.", "INVALID_STATE");
-    if (view.status === "APPROVED") throw new CaseError("The case is already approved.", "INVALID_STATE");
+    if (isFinal(view)) throw new CaseError("The case is already approved.", "INVALID_STATE");
     const parsed = FactChangesSchema.safeParse(changes);
     if (!parsed.success) throw new CaseError(parsed.error.issues.map((i) => i.message).join("; "), "VALIDATION");
 
@@ -222,6 +235,40 @@ export class CaseService {
     return this.getCase(caseNumber);
   }
 
+  /** Draft the Notice of Action for an approved determination (AI explanation + guard + fixed text). Validates synchronously. */
+  generateNotice(caseNumber: string): Promise<CaseView> {
+    const view = this.getCase(caseNumber);
+    if (!view.approval || !view.determination || !view.household) {
+      throw new CaseError("A notice can only be drafted for an approved determination.", "INVALID_STATE");
+    }
+    const key = `${caseNumber}:notice`;
+    if (this.running.has(key)) throw new CaseError("A notice is already being drafted for this case.", "BUSY");
+    this.running.add(key);
+    return this.draft(caseNumber, view, key);
+  }
+
+  private async draft(caseNumber: string, view: CaseView, key: string): Promise<CaseView> {
+    try {
+      const { determination, input, basis, eventId } = view.determination!;
+      const facts = buildNoticeFacts(determination, input, basis);
+      const draft = await draftNotice(this.noticeWriter, facts, {
+        household: view.household!,
+        bps: view.approval!.actor,
+        approvedAt: view.approval!.createdAt,
+        noticeDate: (this.deps.now ?? (() => new Date()))(),
+        policyVersion: determination.policyVersion,
+        determinationEventId: eventId,
+      });
+      this.append({ caseNumber, type: "notice.drafted", actor: "ai:notice", payload: draft });
+    } catch (error) {
+      const e = error instanceof NoticeError ? error : new NoticeError((error as Error).message, "unexpected", []);
+      this.append({ caseNumber, type: "notice.failed", actor: "ai:notice", payload: { reason: e.reason, message: e.message, guardErrors: e.guardErrors } });
+    } finally {
+      this.running.delete(key);
+    }
+    return this.getCase(caseNumber);
+  }
+
   private append(event: NewCaseEvent) {
     try {
       return this.deps.store.append(event);
@@ -240,6 +287,9 @@ export class CaseService {
     if (this.running.has(caseNumber)) throw new CaseError("The pipeline is running for this case.", "BUSY");
   }
 }
+
+/** Approved cases are closed to new documents, runs and revisions. */
+const isFinal = (view: CaseView) => view.status === "APPROVED" || view.status === "NOTICE_READY";
 
 async function pool<T>(items: T[], limit: number, fn: (item: T) => Promise<void>): Promise<void> {
   let next = 0;

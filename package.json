@@ -12,7 +12,8 @@
     "test": "npm run test -w server",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "seed": "npm run seed -w server",
-    "eval": "npm run eval -w server"
+    "eval": "npm run eval -w server",
+    "demo:reset": "npm run demo:reset -w server --"
   },
   "devDependencies": {
     "concurrently": "^10.0.6",

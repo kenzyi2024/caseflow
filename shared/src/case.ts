@@ -2,6 +2,7 @@ import { z } from "zod";
 import { DeterminationSchema, EligibilityInputSchema } from "./eligibility";
 import { IntakeResultSchema } from "./documents";
 import { HouseholdRecordSchema, WageRecordSchema } from "./records";
+import { NoticeDraftSchema } from "./notice";
 import { FactChangesSchema, VerificationResultSchema } from "./verification";
 
 /**
@@ -56,6 +57,12 @@ export const CaseEventSchema = z.discriminatedUnion("type", [
   z.object({ ...meta, type: z.literal("bps.revised_facts"), payload: z.object({ changes: FactChangesSchema, reason }) }),
   z.object({ ...meta, type: z.literal("bps.approved"), payload: z.object({ note: z.string().nullable() }) }),
   z.object({ ...meta, type: z.literal("bps.pended"), payload: z.object({ reason }) }),
+  z.object({ ...meta, type: z.literal("notice.drafted"), payload: NoticeDraftSchema }),
+  z.object({
+    ...meta,
+    type: z.literal("notice.failed"),
+    payload: z.object({ reason: z.string(), message: z.string(), guardErrors: z.array(z.string()) }),
+  }),
 ]);
 export type CaseEvent = z.infer<typeof CaseEventSchema>;
 export type CaseEventType = CaseEvent["type"];
@@ -72,6 +79,7 @@ export const CaseStatusSchema = z.enum([
   "AWAITING_REVIEW",
   "PENDING_VERIFICATION",
   "APPROVED",
+  "NOTICE_READY",
 ]);
 export type CaseStatus = z.infer<typeof CaseStatusSchema>;
 

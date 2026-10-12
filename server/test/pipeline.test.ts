@@ -148,7 +148,7 @@ describe("pipeline: failure rule (AI failure never blocks or decides a case)", (
     await service.syncFromVacms();
     service.uploadDocument(CASE.gonzalez, BPS, docsFor("gonzalez")[0]!, "application/pdf", pdf(docsFor("gonzalez")[0]!));
     const first = service.runPipeline(CASE.gonzalez, "test");
-    await expect(service.runPipeline(CASE.gonzalez, "test")).rejects.toMatchObject({ code: "BUSY" });
+    expect(() => service.runPipeline(CASE.gonzalez, "test")).toThrow(expect.objectContaining({ code: "BUSY" }));
     await first;
   });
 });
