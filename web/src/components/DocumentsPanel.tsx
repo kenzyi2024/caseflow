@@ -21,8 +21,8 @@ export function DocumentsPanel({ view }: { view: CaseResponse }) {
       <h2 id="documents-heading" className="cf-card__title">
         Documents <span className="text-normal font-sans-sm">({view.documents.length})</span>
       </h2>
-      {view.documents.map((doc) => (
-        <details key={doc.documentId} className="cf-doc" open={view.documents.length <= 2}>
+      {view.documents.map((doc, i) => (
+        <details key={doc.documentId} className="cf-doc" open={i === 0 || view.documents.length <= 2}>
           <summary>
             <span className="cf-doc__name">{doc.fileName}</span>
             {doc.intake?.documentType === "pay_stub" && <Tag className="cf-tag bg-primary">Pay stub</Tag>}
