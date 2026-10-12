@@ -134,7 +134,7 @@ export class CaseService {
   private async runSteps(caseNumber: string, view: CaseView, reasons: string[]): Promise<void> {
     // 1. Intake: every document without a result (including earlier failures, which are retried).
     const pending = view.documents.filter((d) => !d.intake);
-    await pool(pending, this.deps.intakeConcurrency ?? 2, async (d) => {
+    await pool(pending, this.deps.intakeConcurrency ?? 3, async (d) => {
       const stored = this.deps.store.getDocument(d.documentId)!;
       try {
         const result = await this.intake(stored.content, { fileName: d.fileName });
