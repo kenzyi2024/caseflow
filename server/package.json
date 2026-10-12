@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc -p .",
     "seed": "tsx scripts/generate-synthetic-data.ts",
-    "eval": "tsx --env-file-if-exists=../.env ../evals/run-evals.ts"
+    "eval": "tsx --env-file-if-exists=../.env ../evals/run-evals.ts",
+    "check:api": "tsx --env-file-if-exists=../.env scripts/check-api.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",
