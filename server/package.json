@@ -1,0 +1,31 @@
+{
+  "name": "@caseflow/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../.env src/index.ts",
+    "start": "tsx --env-file-if-exists=../.env src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p .",
+    "seed": "tsx scripts/generate-synthetic-data.ts",
+    "eval": "tsx --env-file-if-exists=../.env ../evals/run-evals.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@caseflow/shared": "^0.1.0",
+    "@hono/node-server": "^2.1.4",
+    "@hono/zod-validator": "^0.9.1",
+    "better-sqlite3": "^13.0.3",
+    "hono": "^4.13.13",
+    "zod": "^4.6.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.5",
+    "pdf-lib": "^1.17.1",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "program": "SNAP",
+  "version": "FY2027",
+  "title": "Virginia SNAP, fiscal year 2027 (federal standards + VDSS state options)",
+  "effectiveFrom": "2026-10-01",
+  "effectiveTo": "2027-09-30",
+  "jurisdiction": "Commonwealth of Virginia (federal standards for the 48 States and DC)",
+  "parameters": {
+    "grossIncomeLimit": { "bySize": [1729, 2345, 2960, 3575, 4191, 4806, 5421, 6037], "eachAdditional": 616 },
+    "netIncomeLimit": { "bySize": [1330, 1804, 2277, 2750, 3224, 3697, 4170, 4644], "eachAdditional": 474 },
+    "maxAllotment": { "bySize": [306, 562, 808, 1023, 1217, 1463, 1616, 1841], "eachAdditional": 225 },
+    "standardDeduction": { "bySize": [217, 217, 217, 229, 268, 308], "eachAdditional": 0 },
+    "earnedIncomeDeductionRate": 0.2,
+    "benefitReductionRate": 0.3,
+    "excessShelterIncomeShare": 0.5,
+    "shelterCap": 769,
+    "minimumBenefit": { "amount": 25, "maxHouseholdSize": 2 },
+    "resourceLimit": { "standard": 3000, "elderlyOrDisabled": 4750 }
+  },
+  "stateOptions": {
+    "state": "Virginia",
+    "agency": "Virginia Department of Social Services (VDSS)",
+    "manualReference": "VDSS FY2027 SNAP transmittal not yet located; Virginia options below are carried forward or derived (see provisional)",
+    "standardUtilityAllowance": { "bySize": [375, 375, 375, 476], "eachAdditional": 0 },
+    "broadBasedCategoricalEligibility": {
+      "grossIncomeLimit": { "bySize": [2660, 3606, 4553, 5500, 6446, 7393, 8340, 9286], "eachAdditional": 946 },
+      "waivesResourceTest": true,
+      "waivesNetIncomeTest": true
+    },
+    "incomeConversionFactors": { "weekly": 4.3, "biweekly": 2.15, "semimonthly": 2, "monthly": 1 }
+  },
+  "provisional": [
+    {
+      "field": "stateOptions.standardUtilityAllowance",
+      "reason": "FY2026 VDSS values carried forward until the FY2027 VDSS transmittal is published"
+    },
+    {
+      "field": "stateOptions.broadBasedCategoricalEligibility.grossIncomeLimit",
+      "reason": "Derived as 200% of the 2026 HHS poverty guidelines ÷ 12, rounded down (the method that reproduces the VDSS FY2026 table); not yet published by VDSS"
+    }
+  ],
+  "sources": [
+    {
+      "label": "USDA FNS memo, SNAP FY2027 Cost-of-Living Adjustments (Aug 21, 2026)",
+      "url": "https://www.usda.gov/sites/default/files/guidance-documents/fna.snap-cola2027.pdf",
+      "covers": "maxAllotment, standardDeduction, shelterCap, minimumBenefit, resourceLimit"
+    },
+    {
+      "label": "CBPP, A Quick Guide to SNAP Eligibility and Benefits (cites the FY2027 memo)",
+      "url": "https://www.cbpp.org/research/food-assistance/a-quick-guide-to-snap-eligibility-and-benefits",
+      "covers": "standardDeduction by household size"
+    },
+    {
+      "label": "Derived from 2026 HHS poverty guidelines (130% / 100%, monthly, rounded up); spot-checked against published values (size 1: $1,729 / $1,330; size 4: $3,575 / $2,750; size 8 net: $4,644)",
+      "covers": "grossIncomeLimit, netIncomeLimit"
+    },
+    {
+      "label": "22VAC40-601-20 (Virginia Administrative Code), 7 CFR 273.10(c)(2)",
+      "url": "https://law.lis.virginia.gov/admincode/title22/agency40/chapter601/section20/",
+      "covers": "incomeConversionFactors"
+    }
+  ],
+  "notes": [
+    "Demo data. Federal figures follow the USDA FY2027 COLA memo; Virginia-specific figures are provisional until VDSS publishes its FY2027 transmittal."
+  ]
+}

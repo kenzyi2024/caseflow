@@ -1,0 +1,59 @@
+{
+  "program": "SNAP",
+  "version": "FY2026",
+  "title": "Virginia SNAP, fiscal year 2026 (federal standards + VDSS state options)",
+  "effectiveFrom": "2025-10-01",
+  "effectiveTo": "2026-09-30",
+  "jurisdiction": "Commonwealth of Virginia (federal standards for the 48 States and DC)",
+  "parameters": {
+    "grossIncomeLimit": { "bySize": [1696, 2292, 2888, 3483, 4079, 4675, 5271, 5867], "eachAdditional": 596 },
+    "netIncomeLimit": { "bySize": [1305, 1763, 2221, 2680, 3138, 3596, 4055, 4513], "eachAdditional": 459 },
+    "maxAllotment": { "bySize": [298, 546, 785, 994, 1183, 1421, 1571, 1789], "eachAdditional": 218 },
+    "standardDeduction": { "bySize": [209, 209, 209, 223, 261, 299], "eachAdditional": 0 },
+    "earnedIncomeDeductionRate": 0.2,
+    "benefitReductionRate": 0.3,
+    "excessShelterIncomeShare": 0.5,
+    "shelterCap": 744,
+    "minimumBenefit": { "amount": 24, "maxHouseholdSize": 2 },
+    "resourceLimit": { "standard": 3000, "elderlyOrDisabled": 4500 }
+  },
+  "stateOptions": {
+    "state": "Virginia",
+    "agency": "Virginia Department of Social Services (VDSS)",
+    "manualReference": "VDSS SNAP Manual, Volume V, Transmittal #36 (effective 2025-10-01)",
+    "standardUtilityAllowance": { "bySize": [375, 375, 375, 476], "eachAdditional": 0 },
+    "broadBasedCategoricalEligibility": {
+      "grossIncomeLimit": { "bySize": [2608, 3525, 4441, 5358, 6275, 7191, 8108, 9025], "eachAdditional": 916 },
+      "waivesResourceTest": true,
+      "waivesNetIncomeTest": true
+    },
+    "incomeConversionFactors": { "weekly": 4.3, "biweekly": 2.15, "semimonthly": 2, "monthly": 1 }
+  },
+  "provisional": [],
+  "sources": [
+    {
+      "label": "VDSS SNAP Manual Vol. V, Transmittal #36 (Sept 18, 2025; effective Oct 1, 2025)",
+      "url": "https://www.dss.virginia.gov/media/vdss/benefit-programs/documents/snap/transmittals/SNAP-Transmittal-36.pdf",
+      "covers": "Part X.A.1 standardDeduction; Part X.A.4 shelterCap and standardUtilityAllowance ($375 for 1–3 persons, $476 for 4+); Part XI.A grossIncomeLimit (130%), netIncomeLimit (100%), BBCE grossIncomeLimit (200%); Part XX allotment charts (maxAllotment); Part XIII minimumBenefit"
+    },
+    {
+      "label": "VDSS SNAP Manual Vol. V, Part IX.B Resource Limits (10/24)",
+      "url": "https://www.dss.virginia.gov/media/vdss/benefit-programs/documents/snap/snap-manual/Part_ix.pdf",
+      "covers": "resourceLimit; resource limits do not apply to BBCE households"
+    },
+    {
+      "label": "22VAC40-601-20 (Virginia Administrative Code), 7 CFR 273.10(c)(2)",
+      "url": "https://law.lis.virginia.gov/admincode/title22/agency40/chapter601/section20/",
+      "covers": "incomeConversionFactors (weekly × 4.3, biweekly × 2.15)"
+    },
+    {
+      "label": "USDA FNS, SNAP FY2026 Income Eligibility Standards",
+      "url": "https://fns-prod.azureedge.us/sites/default/files/resource-files/snap-fy26-incomeEligibilityStandards.pdf",
+      "covers": "grossIncomeLimit, netIncomeLimit (cross-check)"
+    }
+  ],
+  "notes": [
+    "Demo data. Every figure in this version matches VDSS Transmittal #36 or the federal tables it restates.",
+    "From Nov 1, 2025 (P.L. 119-21), LIHEAP receipt confers the utility standard only for households with an elderly or disabled member. CaseFlow models utility responsibility as a single 'pays heating/cooling' flag."
+  ]
+}
