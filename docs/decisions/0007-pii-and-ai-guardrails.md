@@ -10,7 +10,7 @@ Applicant data is sensitive: names, SSNs, income, addresses. AI-written letters 
 1. **Minimize.** Each AI call gets only the data it needs.
    - The intake step must see the document itself.
    - The Notice of Action step does **not** need identities. It receives the decision trace with personal data replaced by tokens (`{{APPLICANT_NAME}}`, `{{CASE_NUMBER}}`), which code fills in afterward.
-2. **Constrain.** Every AI response must match a Zod schema (structured outputs). If it doesn't match, the step fails.
+2. **Constrain.** Every AI response must match a Zod schema (structured outputs). If it doesn't match, the step fails. The model returns plain strings; code parses dates and amounts, so parsing is deterministic and unit-tested.
 3. **Verify.** A deterministic **notice guard** checks the generated letter:
    - the decision (approved/denied) matches the determination
    - every dollar amount in the letter equals the engine's figures
@@ -18,7 +18,11 @@ Applicant data is sensitive: names, SSNs, income, addresses. AI-written letters 
    - no unreplaced tokens remain
 
    Any failure → regenerate once → otherwise send to manual review.
-4. **Evidence.** Intake extraction returns, for each field, a quote from the document and a confidence score. Fields below the confidence threshold are flagged for the caseworker.
+4. **Evidence, checked by code.** For each pay-stub field, intake returns the exact text it read the value from, plus a confidence score. Code then confirms two things:
+   - the quoted text exists in the PDF's own text layer, which catches invented quotes
+   - the quote actually shows the extracted value, which catches, for example, year-to-date pay read as this period's gross
+
+   Required fields that fail either check, or are missing, send the document to manual review. Fields below 0.8 confidence are flagged for the BPS to confirm, for example a pay frequency the model had to infer from the dates. Scans with no text layer are labeled "evidence not verifiable."
 5. **Hosting (production note).** Claude is available through the Anthropic API and through major cloud providers. A real deployment would use whichever option the agency has authorized within its security boundary, under its data-retention terms. The demo uses the Anthropic API with synthetic data only.
 
 ## Consequences

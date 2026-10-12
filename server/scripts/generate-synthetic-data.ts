@@ -2,9 +2,10 @@
  * Regenerates the synthetic interface files from fixtures/scenarios.ts:
  *   server/data/vacms/HH-EXTRACT.DAT   (illustrative VaCMS household extract)
  *   server/data/vec/QTR-WAGE.DAT       (illustrative VEC quarterly wage match)
+ *   server/data/documents/*.pdf        (pay stubs + a distractor) and manifest.json (eval answer key)
  * Run: npm run seed
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { WageRecord } from "@caseflow/shared";
@@ -13,6 +14,8 @@ import { DEFAULT_VACMS_EXTRACT, VACMS_HOUSEHOLD_LAYOUT } from "../src/integratio
 import { DEFAULT_VEC_WAGE_FILE, VEC_WAGE_LAYOUT } from "../src/integrations/vec";
 import { householdToRaw, wageToRaw } from "../fixtures/encode";
 import { SCENARIOS, UNRELATED_VEC_WAGES } from "../fixtures/scenarios";
+import { DOCUMENTS } from "../fixtures/paystubs";
+import { renderDocument } from "../fixtures/render-documents";
 
 // Safety net: synthetic SSNs must be in the 900–999 area range, which the SSA never assigns.
 const ssns = [...SCENARIOS.map((s) => s.household.ssn), ...UNRELATED_VEC_WAGES.map((w) => w.ssn)];
@@ -43,3 +46,13 @@ function write(url: URL, lines: string[]) {
 
 write(DEFAULT_VACMS_EXTRACT, households);
 write(DEFAULT_VEC_WAGE_FILE, wageLines);
+
+const documentsDir = new URL("../data/documents/", import.meta.url);
+rmSync(documentsDir, { recursive: true, force: true });
+mkdirSync(documentsDir, { recursive: true });
+for (const doc of DOCUMENTS) {
+  writeFileSync(new URL(doc.fileName, documentsDir), await renderDocument(doc));
+}
+const manifest = DOCUMENTS.map(({ fileName, scenarioId, kind, expected }) => ({ fileName, scenarioId, kind, expected }));
+writeFileSync(new URL("manifest.json", documentsDir), JSON.stringify(manifest, null, 2) + "\n");
+console.log(`wrote ${DOCUMENTS.length} documents + manifest.json → ${fileURLToPath(documentsDir)}`);

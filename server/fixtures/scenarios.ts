@@ -16,6 +16,8 @@ export interface Job {
   employerAccount: string;
   payFrequency: IncomeFrequency;
   grossPerPeriodCents: number;
+  /** Printed on the pay stub; hours = gross ÷ rate. */
+  hourlyRateCents: number;
   /** Did the applicant report this job and provide a pay stub? */
   reportedOnApplication: boolean;
   /** Name as printed on the pay stub, when it differs from the VaCMS record. */
@@ -75,7 +77,7 @@ export const SCENARIOS: Scenario[] = [
       preferredLanguage: "es",
       address: { line1: "1450 LARKSPUR CT APT 3B", ...ARLINGTON, zip: "22204" },
     },
-    jobs: [{ ...EMPLOYERS.bluestone, payFrequency: "semimonthly", grossPerPeriodCents: 100_000, reportedOnApplication: true }],
+    jobs: [{ ...EMPLOYERS.bluestone, payFrequency: "semimonthly", grossPerPeriodCents: 100_000, hourlyRateCents: 1_250, reportedOnApplication: true }],
     vecWages: [
       { ...EMPLOYERS.bluestone, quarter: "2026-Q2", wagesCents: 600_000 },
       { ...EMPLOYERS.bluestone, quarter: "2026-Q1", wagesCents: 585_000 },
@@ -100,8 +102,8 @@ export const SCENARIOS: Scenario[] = [
       address: { line1: "2210 JUNIPER HOLLOW RD APT 112", ...ARLINGTON, zip: "22206" },
     },
     jobs: [
-      { ...EMPLOYERS.northlight, payFrequency: "biweekly", grossPerPeriodCents: 78_000, reportedOnApplication: true },
-      { ...EMPLOYERS.fernway, payFrequency: "biweekly", grossPerPeriodCents: 49_000, reportedOnApplication: false },
+      { ...EMPLOYERS.northlight, payFrequency: "biweekly", grossPerPeriodCents: 78_000, hourlyRateCents: 1_300, reportedOnApplication: true },
+      { ...EMPLOYERS.fernway, payFrequency: "biweekly", grossPerPeriodCents: 49_000, hourlyRateCents: 1_400, reportedOnApplication: false },
     ],
     vecWages: [
       { ...EMPLOYERS.northlight, quarter: "2026-Q2", wagesCents: 468_000 },
@@ -150,7 +152,7 @@ export const SCENARIOS: Scenario[] = [
       countableResourcesCents: 120_000,
       address: { line1: "3301 CEDAR KNOLL DR", ...ARLINGTON, zip: "22207" },
     },
-    jobs: [{ ...EMPLOYERS.cedarline, payFrequency: "semimonthly", grossPerPeriodCents: 125_000, reportedOnApplication: true }],
+    jobs: [{ ...EMPLOYERS.cedarline, payFrequency: "semimonthly", grossPerPeriodCents: 125_000, hourlyRateCents: 2_000, reportedOnApplication: true }],
     vecWages: [
       { ...EMPLOYERS.cedarline, quarter: "2026-Q2", wagesCents: 750_000 },
       { ...EMPLOYERS.cedarline, quarter: "2026-Q1", wagesCents: 750_000 },
@@ -174,7 +176,7 @@ export const SCENARIOS: Scenario[] = [
       address: { line1: "1720 FOXGLOVE LN APT 210", ...ARLINGTON, zip: "22201" },
     },
     jobs: [
-      { ...EMPLOYERS.fernway, payFrequency: "weekly", grossPerPeriodCents: 41_000, reportedOnApplication: true, nameOnPaystub: "BOB JOHNSON" },
+      { ...EMPLOYERS.fernway, payFrequency: "weekly", grossPerPeriodCents: 41_000, hourlyRateCents: 2_050, reportedOnApplication: true, nameOnPaystub: "BOB JOHNSON" },
     ],
     vecWages: [
       { ...EMPLOYERS.fernway, quarter: "2026-Q2", wagesCents: 533_000 },
@@ -198,7 +200,7 @@ export const SCENARIOS: Scenario[] = [
       countableResourcesCents: 500_000,
       address: { line1: "4012 HAWTHORN RIDGE CT", ...ARLINGTON, zip: "22205" },
     },
-    jobs: [{ ...EMPLOYERS.northlight, payFrequency: "semimonthly", grossPerPeriodCents: 60_000, reportedOnApplication: true }],
+    jobs: [{ ...EMPLOYERS.northlight, payFrequency: "semimonthly", grossPerPeriodCents: 60_000, hourlyRateCents: 1_500, reportedOnApplication: true }],
     vecWages: [
       { ...EMPLOYERS.northlight, quarter: "2026-Q2", wagesCents: 360_000 },
       { ...EMPLOYERS.northlight, quarter: "2026-Q1", wagesCents: 360_000 },

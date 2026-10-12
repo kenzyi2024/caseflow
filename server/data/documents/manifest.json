@@ -1,0 +1,189 @@
+[
+  {
+    "fileName": "gonzalez-bluestone-2026-09-18.pdf",
+    "scenarioId": "gonzalez",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "MARIA L GONZALEZ",
+      "employerName": "BLUESTONE MARKET CO",
+      "payPeriodStart": "2026-09-01",
+      "payPeriodEnd": "2026-09-15",
+      "payDate": "2026-09-18",
+      "payFrequency": "semimonthly",
+      "grossPayCents": 100000,
+      "netPayCents": 82850,
+      "ytdGrossCents": 1700000
+    }
+  },
+  {
+    "fileName": "gonzalez-bluestone-2026-10-02.pdf",
+    "scenarioId": "gonzalez",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "MARIA L GONZALEZ",
+      "employerName": "BLUESTONE MARKET CO",
+      "payPeriodStart": "2026-09-16",
+      "payPeriodEnd": "2026-09-30",
+      "payDate": "2026-10-02",
+      "payFrequency": "semimonthly",
+      "grossPayCents": 100000,
+      "netPayCents": 82850,
+      "ytdGrossCents": 1800000
+    }
+  },
+  {
+    "fileName": "carter-northlight-2026-09-18.pdf",
+    "scenarioId": "carter",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "JAMES D CARTER",
+      "employerName": "NORTHLIGHT COURIERS LLC",
+      "payPeriodStart": "2026-08-30",
+      "payPeriodEnd": "2026-09-12",
+      "payDate": "2026-09-18",
+      "payFrequency": "biweekly",
+      "grossPayCents": 78000,
+      "netPayCents": 64623,
+      "ytdGrossCents": 1482000
+    }
+  },
+  {
+    "fileName": "carter-northlight-2026-10-02.pdf",
+    "scenarioId": "carter",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "JAMES D CARTER",
+      "employerName": "NORTHLIGHT COURIERS LLC",
+      "payPeriodStart": "2026-09-13",
+      "payPeriodEnd": "2026-09-26",
+      "payDate": "2026-10-02",
+      "payFrequency": "biweekly",
+      "grossPayCents": 78000,
+      "netPayCents": 64623,
+      "ytdGrossCents": 1560000
+    }
+  },
+  {
+    "fileName": "nguyen-cedarline-2026-09-18.pdf",
+    "scenarioId": "nguyen",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "THANH V NGUYEN",
+      "employerName": "CEDARLINE AUTO CARE LLC",
+      "payPeriodStart": "2026-09-01",
+      "payPeriodEnd": "2026-09-15",
+      "payDate": "2026-09-18",
+      "payFrequency": "semimonthly",
+      "grossPayCents": 125000,
+      "netPayCents": 103562,
+      "ytdGrossCents": 2125000
+    }
+  },
+  {
+    "fileName": "nguyen-cedarline-2026-10-02.pdf",
+    "scenarioId": "nguyen",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "THANH V NGUYEN",
+      "employerName": "CEDARLINE AUTO CARE LLC",
+      "payPeriodStart": "2026-09-16",
+      "payPeriodEnd": "2026-09-30",
+      "payDate": "2026-10-02",
+      "payFrequency": "semimonthly",
+      "grossPayCents": 125000,
+      "netPayCents": 103562,
+      "ytdGrossCents": 2250000
+    }
+  },
+  {
+    "fileName": "johnson-fernway-2026-09-25.pdf",
+    "scenarioId": "johnson",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "BOB JOHNSON",
+      "employerName": "FERNWAY HOSPITALITY GROUP",
+      "payPeriodStart": "2026-09-14",
+      "payPeriodEnd": "2026-09-20",
+      "payDate": "2026-09-25",
+      "payFrequency": "weekly",
+      "grossPayCents": 41000,
+      "netPayCents": 33968,
+      "ytdGrossCents": 1558000
+    }
+  },
+  {
+    "fileName": "johnson-fernway-2026-10-02.pdf",
+    "scenarioId": "johnson",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "BOB JOHNSON",
+      "employerName": "FERNWAY HOSPITALITY GROUP",
+      "payPeriodStart": "2026-09-21",
+      "payPeriodEnd": "2026-09-27",
+      "payDate": "2026-10-02",
+      "payFrequency": "weekly",
+      "grossPayCents": 41000,
+      "netPayCents": 33968,
+      "ytdGrossCents": 1599000
+    }
+  },
+  {
+    "fileName": "patel-northlight-2026-09-18.pdf",
+    "scenarioId": "patel",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "ANIKA R PATEL",
+      "employerName": "NORTHLIGHT COURIERS LLC",
+      "payPeriodStart": "2026-09-01",
+      "payPeriodEnd": "2026-09-15",
+      "payDate": "2026-09-18",
+      "payFrequency": "semimonthly",
+      "grossPayCents": 60000,
+      "netPayCents": 49710,
+      "ytdGrossCents": 1020000
+    }
+  },
+  {
+    "fileName": "patel-northlight-2026-10-02.pdf",
+    "scenarioId": "patel",
+    "kind": "paystub",
+    "expected": {
+      "documentType": "pay_stub",
+      "employeeName": "ANIKA R PATEL",
+      "employerName": "NORTHLIGHT COURIERS LLC",
+      "payPeriodStart": "2026-09-16",
+      "payPeriodEnd": "2026-09-30",
+      "payDate": "2026-10-02",
+      "payFrequency": "semimonthly",
+      "grossPayCents": 60000,
+      "netPayCents": 49710,
+      "ytdGrossCents": 1080000
+    }
+  },
+  {
+    "fileName": "gonzalez-utility-bill-2026-09-22.pdf",
+    "scenarioId": "gonzalez",
+    "kind": "utility_bill",
+    "expected": {
+      "documentType": "other",
+      "employeeName": null,
+      "employerName": null,
+      "payPeriodStart": null,
+      "payPeriodEnd": null,
+      "payDate": null,
+      "payFrequency": null,
+      "grossPayCents": null,
+      "netPayCents": null,
+      "ytdGrossCents": null
+    }
+  }
+]
