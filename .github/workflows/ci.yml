@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check (shared, server, web)
+        run: npm run typecheck
+
+      # Offline by design: the AI steps are exercised through deterministic fakes, so CI needs no API key
+      # and never spends money. The real model is measured separately with `npm run eval`.
+      - name: Tests (rules engine, adapters, guardrails, pipeline, API)
+        run: npm test
+
+      # The synthetic VaCMS/VEC files and pay stub PDFs are generated from fixtures/scenarios.ts.
+      # Regenerating must produce identical bytes, so fixtures can never drift from the scenarios.
+      - name: Synthetic data is up to date
+        run: |
+          npm run seed
+          if ! git diff --quiet -- server/data; then
+            git status --short -- server/data
+            echo "::error::server/data is out of date. Run 'npm run seed' and commit the result."
+            exit 1
+          fi
+
+      - name: Build web app
+        run: npm run build -w web
