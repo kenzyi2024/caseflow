@@ -57,6 +57,14 @@ describe("API", () => {
     });
   });
 
+  it("includes the VaCMS applicant on a case that has not been processed yet", async () => {
+    const view: any = await (await app.request("/api/cases/0130000101")).json();
+    expect(view.status).toBe("RECEIVED");
+    expect(view.household).toBeNull();
+    expect(view.applicant.headOfHousehold.last).toBe("GONZALEZ");
+    expect(view.daysRemaining).toBe(23);
+  });
+
   it("answers errors with clear JSON and the right status codes", async () => {
     expect((await app.request("/api/cases/9999999999")).status).toBe(404);
     const noUser = await app.request(`/api/cases/${CARTER}/run`, { method: "POST" });

@@ -6,3 +6,4 @@ export * from "./documents";
 export * from "./verification";
 export * from "./notice";
 export * from "./case";
+export * from "./case-view";

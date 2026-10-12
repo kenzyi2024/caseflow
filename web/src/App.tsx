@@ -1,50 +1,58 @@
-import { useEffect, useState } from "react";
-import { Alert, AlertHeading, AlertText, GridContainer, Header, Title } from "@trussworks/react-uswds";
-
-type Health = { status: string; policies: { version: string; effectiveFrom: string; effectiveTo: string }[] };
+import { Link, NavLink, Route, Routes } from "react-router-dom";
+import { Select } from "@trussworks/react-uswds";
+import { BPS_USERS, setCurrentUser, useCurrentUser } from "./lib/user";
+import { QueuePage } from "./pages/QueuePage";
+import { CasePage } from "./pages/CasePage";
+import { PoliciesPage } from "./pages/PoliciesPage";
 
 export function App() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then(setHealth)
-      .catch((e: Error) => setError(e.message));
-  }, []);
-
+  const user = useCurrentUser();
   return (
     <>
-      <Header basic>
-        <div className="usa-nav-container">
-          <div className="usa-navbar">
-            <Title>CaseFlow · SNAP casework (demo)</Title>
+      <a className="usa-skipnav" href="#main-content">
+        Skip to main content
+      </a>
+      <header className="cf-header">
+        <div className="grid-container-widescreen cf-header__inner">
+          <div>
+            <Link to="/" className="cf-brand">
+              CaseFlow
+            </Link>
+            <span className="cf-brand__sub">SNAP casework · Arlington County DHS (demo)</span>
+          </div>
+          <nav aria-label="Primary" className="cf-nav">
+            <NavLink to="/" end>
+              Work queue
+            </NavLink>
+            <NavLink to="/policy">Policy versions</NavLink>
+          </nav>
+          <div className="cf-user">
+            <label htmlFor="bps-user" className="cf-user__label">
+              Signed in as
+            </label>
+            <Select id="bps-user" name="bps-user" value={user} onChange={(e) => setCurrentUser(e.target.value)} className="cf-user__select">
+              {BPS_USERS.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} (BPS)
+                </option>
+              ))}
+            </Select>
           </div>
         </div>
-      </Header>
-      <main id="main-content">
-        <GridContainer className="padding-y-4">
-          <Alert type="info">
-            <AlertHeading level="h2">Independent demo</AlertHeading>
-            <AlertText>
-              Modeled on Arlington County DHS and Virginia Department of Social Services SNAP workflows. Not affiliated with
-              Arlington County, VDSS, or the Virginia Employment Commission. Synthetic data only.
-            </AlertText>
-          </Alert>
-          {error && (
-            <Alert type="error">
-              <AlertHeading level="h2">API unavailable</AlertHeading>
-              <AlertText>{error}</AlertText>
-            </Alert>
-          )}
-          {health && (
-            <p>
-              API: <strong>{health.status}</strong> · Policy versions loaded:{" "}
-              {health.policies.map((p) => `${p.version} (${p.effectiveFrom} → ${p.effectiveTo})`).join(", ")}
-            </p>
-          )}
-        </GridContainer>
+      </header>
+      <div className="cf-demo-banner" role="note">
+        <div className="grid-container-widescreen">
+          <strong>Independent demo.</strong> Modeled on Arlington County DHS and Virginia Department of Social Services SNAP workflows. Not
+          affiliated with Arlington County, VDSS, or the Virginia Employment Commission. Synthetic data only.
+        </div>
+      </div>
+      <main id="main-content" className="grid-container-widescreen padding-y-4">
+        <Routes>
+          <Route path="/" element={<QueuePage />} />
+          <Route path="/cases/:caseNumber" element={<CasePage />} />
+          <Route path="/policy" element={<PoliciesPage />} />
+          <Route path="*" element={<p>Page not found. <Link to="/">Back to the work queue</Link></p>} />
+        </Routes>
       </main>
     </>
   );

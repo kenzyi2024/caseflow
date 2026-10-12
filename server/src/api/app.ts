@@ -4,7 +4,7 @@ import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
 import { z } from "zod";
-import { FactChangesSchema, PROCESSING_STANDARD_DAYS, type HouseholdRecord } from "@caseflow/shared";
+import { FactChangesSchema, PROCESSING_STANDARD_DAYS, type CaseResponse, type CaseSummary, type HouseholdRecord } from "@caseflow/shared";
 import type { HouseholdSource } from "../integrations/ports";
 import { CaseError, type CaseService } from "../pipeline/case-service";
 import type { CaseView } from "../pipeline/projection";
@@ -42,10 +42,20 @@ export function createApp(deps: ApiDeps) {
     return user;
   };
 
-  const withDeadline = (view: CaseView) => ({
-    ...view,
-    daysRemaining: view.processingDeadline ? daysBetween(today(), view.processingDeadline) : null,
-  });
+  const deadlineFor = (applicationDate: string) =>
+    new Date(Date.parse(`${applicationDate}T00:00:00Z`) + PROCESSING_STANDARD_DAYS * 86_400_000).toISOString().slice(0, 10);
+
+  const withDeadline = async (view: CaseView): Promise<CaseResponse> => {
+    const applicant = view.household ?? (await households.getHousehold(view.caseNumber)) ?? null;
+    const processingDeadline = view.processingDeadline ?? (applicant ? deadlineFor(applicant.applicationDate) : null);
+    return {
+      ...view,
+      applicationDate: view.applicationDate ?? applicant?.applicationDate ?? null,
+      processingDeadline,
+      daysRemaining: processingDeadline ? daysBetween(today(), processingDeadline) : null,
+      applicant,
+    };
+  };
 
   app.onError((error, c) => {
     if (error instanceof CaseError) return c.json({ error: error.message, code: error.code }, STATUS_FOR[error.code]);
@@ -74,9 +84,9 @@ export function createApp(deps: ApiDeps) {
   /** The BPS work queue. Household details come from VaCMS even before a case has been processed. */
   app.get("/cases", async (c) => {
     const byCase = new Map<string, HouseholdRecord>((await households.listHouseholds()).map((h) => [h.caseNumber, h]));
-    const rows = service.listCases().map((view) => {
+    const rows = service.listCases().map((view): CaseSummary => {
       const household = view.household ?? byCase.get(view.caseNumber) ?? null;
-      const deadline = household ? new Date(Date.parse(`${household.applicationDate}T00:00:00Z`) + PROCESSING_STANDARD_DAYS * 86_400_000).toISOString().slice(0, 10) : null;
+      const deadline = household ? deadlineFor(household.applicationDate) : null;
       const flags = view.verification?.flags ?? [];
       const d = view.determination?.determination;
       return {
@@ -99,7 +109,7 @@ export function createApp(deps: ApiDeps) {
     return c.json(rows);
   });
 
-  app.get("/cases/:caseNumber", (c) => c.json(withDeadline(service.getCase(c.req.param("caseNumber")))));
+  app.get("/cases/:caseNumber", async (c) => c.json(await withDeadline(service.getCase(c.req.param("caseNumber")))));
 
   app.post(
     "/cases/:caseNumber/documents",
@@ -136,25 +146,25 @@ export function createApp(deps: ApiDeps) {
     zValidator("json", z.object({ changes: FactChangesSchema, reason: z.string() }), (result, c) => {
       if (!result.success) return c.json({ error: result.error.issues.map((i) => i.message).join("; "), code: "VALIDATION" }, 400);
     }),
-    (c) => {
+    async (c) => {
       const { changes, reason } = c.req.valid("json");
-      return c.json(withDeadline(service.reviseFacts(c.req.param("caseNumber"), actor(c), changes, reason)));
+      return c.json(await withDeadline(service.reviseFacts(c.req.param("caseNumber"), actor(c), changes, reason)));
     },
   );
 
   app.post(
     "/cases/:caseNumber/approve",
     zValidator("json", z.object({ note: z.string().nullable().optional() })),
-    (c) => {
+    async (c) => {
       const caseNumber = c.req.param("caseNumber");
       const view = service.approve(caseNumber, actor(c), c.req.valid("json").note ?? null);
       service.generateNotice(caseNumber).catch((error) => console.error(`notice ${caseNumber}`, error));
-      return c.json(withDeadline(view));
+      return c.json(await withDeadline(view));
     },
   );
 
-  app.post("/cases/:caseNumber/pend", zValidator("json", z.object({ reason: z.string() })), (c) =>
-    c.json(withDeadline(service.pend(c.req.param("caseNumber"), actor(c), c.req.valid("json").reason))),
+  app.post("/cases/:caseNumber/pend", zValidator("json", z.object({ reason: z.string() })), async (c) =>
+    c.json(await withDeadline(service.pend(c.req.param("caseNumber"), actor(c), c.req.valid("json").reason))),
   );
 
   /** Re-draft the notice (e.g. after a notice.failed). */

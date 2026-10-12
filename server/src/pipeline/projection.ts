@@ -2,62 +2,16 @@ import {
   PROCESSING_STANDARD_DAYS,
   type CaseEvent,
   type CaseEventOf,
-  type CaseStatus,
-  type Determination,
+  type CaseView,
   type EligibilityInput,
-  type FactChanges,
-  type HouseholdRecord,
-  type IntakeResult,
-  type NoticeDraft,
-  type VerificationFlag,
-  type VerificationResult,
-  type WageRecord,
 } from "@caseflow/shared";
+
+export type { CaseDocument, CaseView, DeterminationRecord } from "@caseflow/shared";
 
 /**
  * Current state of a case, rebuilt from its events every time (ADR-0005).
  * Pure: the same events always produce the same view.
  */
-
-export interface CaseDocument {
-  documentId: string;
-  fileName: string;
-  sizeBytes: number;
-  uploadedAt: string;
-  intake: IntakeResult | null;
-  intakeError: { reason: string; message: string } | null;
-}
-
-export interface DeterminationRecord {
-  eventId: number;
-  createdAt: string;
-  basis: "documents" | "bps_revision";
-  input: EligibilityInput;
-  determination: Determination;
-}
-
-export interface CaseView {
-  caseNumber: string;
-  status: CaseStatus;
-  /** Why the case is in manual review, in plain language. */
-  manualReviewReasons: string[];
-  household: HouseholdRecord | null;
-  applicationDate: string | null;
-  processingDeadline: string | null;
-  documents: CaseDocument[];
-  wageRecords: WageRecord[];
-  verification: (VerificationResult & { eventId: number }) | null;
-  /** Revisions made against the current verification, oldest first. */
-  revisions: { eventId: number; actor: string; createdAt: string; changes: FactChanges; reason: string }[];
-  determination: DeterminationRecord | null;
-  determinationHistory: DeterminationRecord[];
-  openActionFlags: VerificationFlag[];
-  approval: { actor: string; createdAt: string; note: string | null } | null;
-  pended: { actor: string; createdAt: string; reason: string } | null;
-  notice: (NoticeDraft & { eventId: number; createdAt: string }) | null;
-  noticeError: { reason: string; message: string; guardErrors: string[]; createdAt: string } | null;
-  timeline: CaseEvent[];
-}
 
 const addDays = (iso: string, days: number) => {
   const d = new Date(`${iso}T00:00:00Z`);
