@@ -11,3 +11,4 @@ Each decision records the context, the options considered, the choice, its conse
 | [0005](0005-append-only-event-log.md) | Append-only event log (SQLite) as CaseFlow's audit record | Accepted (revised) |
 | [0006](0006-virginia-records-adapter.md) | Read-only adapter for VaCMS household and VEC wage records | Accepted (revised) |
 | [0007](0007-pii-and-ai-guardrails.md) | PII minimization and guardrails around AI calls | Accepted |
+| [0008](0008-bps-changes-facts-not-outcomes.md) | A BPS changes facts, not outcomes | Accepted |

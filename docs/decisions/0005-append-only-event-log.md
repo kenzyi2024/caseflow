@@ -14,9 +14,10 @@ Auditors and appeal hearings ask questions like "Why was this household denied o
 | PostgreSQL | Production-grade | Needs a running server; adds setup risk for a demo |
 
 ## Decision
-- One `events` table, written by insert only: `id, case_id, type, actor, payload (JSON), created_at`.
+- One `events` table, written by insert only: `id, case_number, type, actor, payload (JSON), created_at`. Every event is validated against its Zod schema before it is written and again when it is read.
   - The code never issues an UPDATE or DELETE on this table.
-  - A database trigger rejects any UPDATE or DELETE.
+  - Database triggers reject any UPDATE or DELETE.
+- Uploaded documents are stored the same way: immutable, keyed by SHA-256.
 - Case state (status, latest extraction, determination, review) is a **projection**: it is computed by replaying the case's events.
 - Every event names its **actor**: `system`, `ai:intake`, `ai:notice`, or a Benefit Programs Specialist id.
 - **Storage:** SQLite through `better-sqlite3`. It is one file with no server, and its writes are reliable and synchronous. Production would swap in PostgreSQL behind the same small store interface.
