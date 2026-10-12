@@ -21,7 +21,8 @@ const opened = await service.syncFromVacms();
 if (!process.env.ANTHROPIC_API_KEY) console.warn("ANTHROPIC_API_KEY is not set: intake and notices will fail and route cases to manual review.");
 
 const app = createApp({ service, store, households, samplesDir: SAMPLES_DIR });
-const port = Number(process.env.PORT ?? 8787);
+// Dedicated variable (not PORT): preview runners often inject PORT for the web server, which would collide.
+const port = Number(process.env.CASEFLOW_API_PORT ?? 8787);
 serve({ fetch: app.fetch, port }, () =>
   console.log(`CaseFlow API on http://localhost:${port} · ${store.caseNumbers().length} cases (${opened} newly opened from VaCMS)`),
 );
