@@ -92,6 +92,13 @@ describe("Virginia broad-based categorical eligibility (BBCE)", () => {
     expect(d.eligibilityPath).toBe("BBCE");
   });
 
+  it("treats income exactly at the 200% limit as within it ('may not exceed')", () => {
+    const atLimit = determineEligibility(household({ householdSize: 1, monthlyEarnedIncomeCents: 266_000 })); // FY2027 limit $2,660
+    expect(atLimit.eligibilityPath).toBe("BBCE");
+    const oneCentOver = determineEligibility(household({ householdSize: 1, monthlyEarnedIncomeCents: 266_001 }));
+    expect(oneCentOver.eligibilityPath).toBe("STANDARD");
+  });
+
   it("waives the resource test (VDSS Manual Part IX.B)", () => {
     const input = { monthlyEarnedIncomeCents: 100_000, countableResourcesCents: 500_000 };
     expect(determineEligibility(notBbce(input)).denialReasons).toEqual(["RESOURCES_EXCEED_LIMIT"]);
